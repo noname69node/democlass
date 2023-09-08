@@ -1,10 +1,13 @@
-import { Request, Response, Router } from 'express';
-import { IUser } from '../models/User/user.interface';
-import { isValidObjectId } from 'mongoose';
-import { IController } from '../interfaces/IController';
+import { Request, Response, Router } from "express";
+import { IUser } from "../models/User/user.interface";
+import { isValidObjectId } from "mongoose";
+import { IController } from "../interfaces/IController";
+
+import validationMiddleware from "../middleware/validation";
+import { CreateUserDto } from "../models/User/user.create.dto";
 
 class UserController implements IController {
-  public path = '/users';
+  public path = "/users";
   public router = Router();
 
   constructor() {
@@ -14,11 +17,11 @@ class UserController implements IController {
   public initRoutes() {
     this.router.get(this.path, this.getUsers);
     this.router.get(`${this.path}/:id`, this.getUser);
-    this.router.post(this.path, this.createUser);
+    this.router.post(this.path, validationMiddleware(CreateUserDto), this.createUser);
   }
 
   private getUsers = (req: Request, res: Response) => {
-    res.json({ message: 'get all users' });
+    res.json({ message: "get all users" });
   };
 
   private getUser = (req: Request, res: Response) => {
