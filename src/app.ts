@@ -1,6 +1,9 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import { IController } from './interfaces/IController';
+import connect from './utils/connect';
+import logger from './utils/logger';
+//import pino from 'pino-http';
 
 class App {
   public app: Application;
@@ -10,20 +13,26 @@ class App {
     this.app = express();
     this.port = process.env.PORT || 5000;
 
+    this.connectToDB();
     this.initMiddlewares();
     this.initRoutes();
-    this.initControllers(controllers);
+    this.initRoutesFromControllers(controllers);
   }
 
   public listen() {
     this.app.listen(this.port, () => {
-      console.log(`App running on port ${this.port}`);
+      logger.info(`App running on port ${this.port}`);
     });
+  }
+
+  private async connectToDB() {
+    await connect();
   }
 
   private initMiddlewares() {
     this.app.use(express.json());
     this.app.use(cors());
+    //this.app.use(pino());
   }
 
   private initRoutes() {
@@ -32,7 +41,7 @@ class App {
     });
   }
 
-  private initControllers(controllers: IController[]) {
+  private initRoutesFromControllers(controllers: IController[]) {
     controllers.forEach((controller) =>
       this.app.use('/api', controller.router)
     );
