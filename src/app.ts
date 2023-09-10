@@ -1,10 +1,13 @@
-import express, { Application } from "express";
-import cors from "cors";
-import { IController } from "./interfaces/IController";
-import connect from "./utils/connect";
-import logger from "./utils/logger";
-import errorMiddleware from "./middleware/error.middleware";
+import express, { Application } from 'express';
+import cors from 'cors';
+import { IController } from './interfaces/IController';
+import connect from './utils/connect';
+import logger from './utils/logger';
+import errorMiddleware from './middleware/error.middleware';
 //import pino from 'pino-http';
+
+import userRoutes from './routes/user.routes';
+import projectRoutes from './routes/project.routes';
 
 class App {
   public app: Application;
@@ -17,7 +20,7 @@ class App {
     this.connectToDB();
     this.initMiddlewares();
     this.initRoutes();
-    this.initRoutesFromControllers(controllers);
+    //this.initRoutesFromControllers(controllers);
     this.initErrorHandling();
   }
 
@@ -38,13 +41,17 @@ class App {
   }
 
   private initRoutes() {
-    this.app.get("/", (req, res) => {
-      res.send("Hello");
+    this.app.get('/', (req, res) => {
+      res.send('Hello');
     });
+    this.app.use('/api', userRoutes);
+    this.app.use('/api', projectRoutes);
   }
 
   private initRoutesFromControllers(controllers: IController[]) {
-    controllers.forEach((controller) => this.app.use("/api", controller.router));
+    controllers.forEach((controller) =>
+      this.app.use('/api', controller.router)
+    );
   }
 
   private initErrorHandling() {

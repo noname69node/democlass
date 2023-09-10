@@ -27,11 +27,11 @@ class ProjectController implements IController {
     this.router.delete(`${this.path}/:id`, this.deleteProject);
   }
 
-  private getProjects = (req: Request, res: Response) => {
+  public getProjects = (req: Request, res: Response) => {
     res.json({ message: "get all projects" });
   };
 
-  private getProject = asyncHandler(async (req: Request, res: Response) => {
+  public getProject = asyncHandler(async (req: Request, res: Response) => {
     const id = req.params.id;
     if (!isValidObjectId(id)) throw new MongooseError("invalid id");
 
@@ -80,7 +80,7 @@ class ProjectController implements IController {
     res.json(project);
   });
 
-  private createProject = async (req: Request, res: Response) => {
+  public createProject = async (req: Request, res: Response) => {
     const newProject = req.body;
     try {
       const createdProject = await ProjectModel.create(newProject);
@@ -92,13 +92,13 @@ class ProjectController implements IController {
     }
   };
 
-  private updateProject = (req: Request, res: Response) => {
+  public updateProject = (req: Request, res: Response) => {
     const id = req.params.id;
     const project = req.body;
     res.json({ message: `update project ${id}`, project });
   };
 
-  private deleteProject = asyncHandler(async (req: Request, res: Response) => {
+  public deleteProject = asyncHandler(async (req: Request, res: Response) => {
     const id = req.params.id;
     if (!isValidObjectId(id)) throw new MongooseError("invalid id");
 

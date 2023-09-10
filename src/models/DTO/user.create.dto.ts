@@ -8,11 +8,11 @@ import {
   NotContains,
   IsNotEmpty,
   IsDate,
-} from "class-validator";
-import { Trim, ToDate, NormalizeEmail } from "class-sanitizer";
-import { UserRole, UserStatus } from "../User/user.enums";
+} from 'class-validator';
+import { Trim, ToDate, NormalizeEmail } from 'class-sanitizer';
+import { UserRole, UserStatus } from '../User/user.enums';
 
-export class CreateUserDto {
+class CreateUserDto {
   @Trim()
   @IsString()
   @IsNotEmpty()
@@ -20,15 +20,18 @@ export class CreateUserDto {
 
   @Trim()
   @NormalizeEmail()
-  @IsEmail({}, { message: "Provided Email is not valid" })
+  @IsEmail({}, { message: 'Provided Email is not valid' })
   public email: string;
 
   @IsString()
-  @MinLength(8, { message: "Password must be at least 8 characters long" })
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
   @Matches(/^(?=.*[A-Z])(?=.*\d)/, {
-    message: "Password must contain at least one uppercase letter and one number",
+    message:
+      'Password must contain at least one uppercase letter and one number',
   })
-  @NotContains(" ", { message: "Password must not contain whitespace characters" })
+  @NotContains(' ', {
+    message: 'Password must not contain whitespace characters',
+  })
   public password: string;
 
   @IsString()
@@ -52,3 +55,5 @@ export class CreateUserDto {
   @IsOptional()
   public token: string;
 }
+
+export default CreateUserDto;
