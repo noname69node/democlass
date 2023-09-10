@@ -1,8 +1,9 @@
-import express, { Application } from 'express';
-import cors from 'cors';
-import { IController } from './interfaces/IController';
-import connect from './utils/connect';
-import logger from './utils/logger';
+import express, { Application } from "express";
+import cors from "cors";
+import { IController } from "./interfaces/IController";
+import connect from "./utils/connect";
+import logger from "./utils/logger";
+import errorMiddleware from "./middleware/error.middleware";
 //import pino from 'pino-http';
 
 class App {
@@ -17,6 +18,7 @@ class App {
     this.initMiddlewares();
     this.initRoutes();
     this.initRoutesFromControllers(controllers);
+    this.initErrorHandling();
   }
 
   public listen() {
@@ -36,15 +38,17 @@ class App {
   }
 
   private initRoutes() {
-    this.app.get('/', (req, res) => {
-      res.send('Hello');
+    this.app.get("/", (req, res) => {
+      res.send("Hello");
     });
   }
 
   private initRoutesFromControllers(controllers: IController[]) {
-    controllers.forEach((controller) =>
-      this.app.use('/api', controller.router)
-    );
+    controllers.forEach((controller) => this.app.use("/api", controller.router));
+  }
+
+  private initErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 }
 
