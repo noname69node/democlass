@@ -6,9 +6,11 @@ import {
   IsDate,
   IsArray,
   Validate,
+  IsObject,
+  isArray,
 } from "class-validator";
 import { Trim, ToDate } from "class-sanitizer";
-import { ProjectStatus } from "../project.model";
+import { ProjectStatus, WorkerStatusAtProject } from "../project.model";
 
 import {
   ValidatorConstraint,
@@ -16,6 +18,21 @@ import {
   ValidationArguments,
 } from "class-validator";
 import mongoose from "mongoose";
+
+@ValidatorConstraint({ name: "isValidDateRange", async: false })
+export class IsValidDateRangeConstraint implements ValidatorConstraintInterface {
+  validate(value: any, args: ValidationArguments) {
+    if (!(value instanceof Date)) {
+      return false; // Value is not a Date object
+    }
+    const year = value.getFullYear();
+    return year >= 2000 && year <= 2050;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `${args.property} must be a valid date between 2000 and 2050.`;
+  }
+}
 
 @ValidatorConstraint({ name: "isValidMongoId", async: false })
 export class IsValidMongoIdConstraint implements ValidatorConstraintInterface {
@@ -36,6 +53,7 @@ export class IsValidMongoIdArrayConstraint implements ValidatorConstraintInterfa
     }
     for (const item of value) {
       if (!mongoose.Types.ObjectId.isValid(item)) {
+        // item.wid
         return false;
       }
     }
@@ -45,6 +63,15 @@ export class IsValidMongoIdArrayConstraint implements ValidatorConstraintInterfa
   defaultMessage(args: ValidationArguments) {
     return `${args.property} must be an array of valid MongoDB ObjectIds.`;
   }
+}
+
+export class WorkerDto {
+  @Validate(IsValidMongoIdConstraint, { message: "Invalid worker ID" })
+  wid: string;
+
+  @IsEnum(WorkerStatusAtProject)
+  @IsOptional()
+  status?: WorkerStatusAtProject;
 }
 
 export class CreateProjectDto {
@@ -61,20 +88,25 @@ export class CreateProjectDto {
   @IsEnum(ProjectStatus, { message: "Invalid project status" })
   public status: ProjectStatus = ProjectStatus.Planning;
 
-  //work with date
+  // validation for location
+
+  //validation for date, date range
   @ToDate()
-  @IsDate()
+  @IsDate({ message: "Invalid start date" })
   @IsOptional()
+  @Validate(IsValidDateRangeConstraint, { message: "Invalid start date range" })
   public start_date?: Date;
 
   @ToDate()
-  @IsDate()
+  @IsDate({ message: "Invalid end date" })
   @IsOptional()
+  @Validate(IsValidDateRangeConstraint, { message: "Invalid end date range" })
   public end_date?: Date;
 
   @ToDate()
-  @IsDate()
+  @IsDate({ message: "Invalid deadline date" })
   @IsOptional()
+  @Validate(IsValidDateRangeConstraint, { message: "Invalid deadline range" })
   public deadline?: Date;
 
   @IsString()
@@ -82,9 +114,13 @@ export class CreateProjectDto {
   @Validate(IsValidMongoIdConstraint, { message: "Invalid project manager ID" })
   public project_manager?: string;
 
+  //@IsObject({ each: true })
   @IsString({ each: true })
   @IsOptional()
   @IsArray()
-  @Validate(IsValidMongoIdArrayConstraint, { message: "Invalid workers array" })
+  @Validate(IsValidMongoIdArrayConstraint, {
+    message: "Invalid workers array, or invalid one of worker ID",
+  })
+  //   public workers?: WorkerDto[];
   public workers?: string[];
 }

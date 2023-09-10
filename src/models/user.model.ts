@@ -16,11 +16,11 @@ export enum UserStatus {
 }
 
 export interface IContact {
-  address: string;
-  city: string;
-  country: string;
-  zip: string;
-  phone_number: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  zip?: string;
+  phone_number?: string;
 }
 
 export interface IUser extends Document {

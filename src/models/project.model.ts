@@ -9,8 +9,13 @@ export enum ProjectStatus {
   Canceled = "canceled",
 }
 
+export enum WorkerStatusAtProject {
+  Active = "active",
+  InActive = "inactive",
+}
+
 export interface ILocation extends IContact {
-  geo_location: {
+  geo_location?: {
     type: string;
     coordinates: [number, number];
   };
@@ -25,15 +30,16 @@ export interface IProject extends Document {
   end_date?: Date;
   deadline?: Date;
   project_manager?: Schema.Types.ObjectId;
+  //workers?: [wid: Schema.Types.ObjectId, status: WorkerStatusAtProject];
   workers?: Schema.Types.ObjectId[];
 }
 
 const locationSchema = new Schema<ILocation>({
-  //   address: String,
-  //   city: String,
-  //   country: String,
-  //   zip: String,
-  //   phone_number: String,
+  address: String,
+  city: String,
+  country: String,
+  zip: String,
+  phone_number: String,
   geo_location: {
     type: { type: String, default: "Point" },
     coordinates: { type: [Number], default: [0, 0] },
@@ -48,7 +54,7 @@ const projectSchema = new Schema<IProject>(
       index: true,
     },
     description: String,
-    location: locationSchema,
+    location: { type: locationSchema, _id: false },
     status: {
       type: String,
       enum: Object.values(ProjectStatus),
@@ -60,12 +66,26 @@ const projectSchema = new Schema<IProject>(
     deadline: Date,
     project_manager: {
       type: Schema.Types.ObjectId,
-      res: "User",
+      ref: "User",
     },
+    // workers: [
+    //   {
+    //     wid: {
+    //       type: Schema.Types.ObjectId,
+    //       ref: "User",
+    //     },
+    //     status: {
+    //       type: String,
+    //       enum: Object.values(WorkerStatusAtProject),
+    //       default: WorkerStatusAtProject.Active,
+    //     },
+    //     _id: false,
+    //   },
+    // ],
     workers: [
       {
         type: Schema.Types.ObjectId,
-        res: "User",
+        ref: "User",
       },
     ],
   },
